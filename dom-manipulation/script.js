@@ -25,12 +25,32 @@ function updateDOM() {
   });
 }
 
+function createAddQuoteForm() {
+  const formContainer = document.createElement('div');
+  const inputField = document.createElement('input');
+  inputField.id = 'newQuoteInput';
+  inputField.type = 'text';
+  inputField.placeholder = 'Enter new quote';
+
+  const addButton = document.createElement('button');
+  addButton.id = 'addQuote';
+  addButton.textContent = 'Add Quote';
+
+  formContainer.appendChild(inputField);
+  formContainer.appendChild(addButton);
+
+  document.body.appendChild(formContainer);
+
+  addButton.addEventListener('click', () => {
+      const newQuote = inputField.value;
+      if (newQuote) {
+          addQuote(newQuote);
+          inputField.value = '';
+      }
+  });
+}
+
 document.getElementById('newQuote').addEventListener('click', showRandomQuote);
 
-document.getElementById('addQuote').addEventListener('click', () => {
-  const newQuote = document.getElementById('newQuoteInput').value;
-  if (newQuote) {
-      addQuote(newQuote);
-      document.getElementById('newQuoteInput').value = '';
-  }
-});
+// Call the function to create the form when the script loads
+createAddQuoteForm();
