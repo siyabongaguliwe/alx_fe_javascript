@@ -1,42 +1,36 @@
-// Array to store quotes
 const quotes = [
-  { text: "The only limit to our realization of tomorrow is our doubts of today.", category: "Motivation" },
-  { text: "Life is what happens when you're busy making other plans.", category: "Life" },
+  { text: "The only way to do great work is to love what you do. - Steve Jobs", category: "Motivation" },
+  { text: "In the middle of difficulty lies opportunity. - Albert Einstein", category: "Inspiration" },
   // Add more quotes as needed
 ];
 
-// Function to display a random quote
 function showRandomQuote() {
   const randomIndex = Math.floor(Math.random() * quotes.length);
-  const quote = quotes[randomIndex];
   const quoteDisplay = document.getElementById('quoteDisplay');
-  quoteDisplay.innerHTML = `<p>${quote.text}</p><p><em>${quote.category}</em></p>`;
+  quoteDisplay.textContent = quotes[randomIndex].text;
 }
 
-// Event listener for the "Show New Quote" button
+function addQuote(newQuote) {
+  quotes.push({ text: newQuote, category: "User Added" });
+  updateDOM();
+}
+
+function updateDOM() {
+  const quoteDisplay = document.getElementById('quoteDisplay');
+  quoteDisplay.innerHTML = '';
+  quotes.forEach(quote => {
+      const listItem = document.createElement('div');
+      listItem.textContent = quote.text;
+      quoteDisplay.appendChild(listItem);
+  });
+}
+
 document.getElementById('newQuote').addEventListener('click', showRandomQuote);
 
-// Function to add a new quote
-function addQuote() {
-  const newQuoteText = document.getElementById('newQuoteText').value;
-  const newQuoteCategory = document.getElementById('newQuoteCategory').value;
-
-  if (newQuoteText && newQuoteCategory) {
-    quotes.push({ text: newQuoteText, category: newQuoteCategory });
-    alert('New quote added successfully!');
-    document.getElementById('newQuoteText').value = '';
-    document.getElementById('newQuoteCategory').value = '';
-    updateDOM();
-  } else {
-    alert('Please enter both a quote and a category.');
+document.getElementById('addQuote').addEventListener('click', () => {
+  const newQuote = document.getElementById('newQuoteInput').value;
+  if (newQuote) {
+      addQuote(newQuote);
+      document.getElementById('newQuoteInput').value = '';
   }
-}
-
-// Function to update the DOM with all quotes
-function updateDOM() {
-  const quoteContainer = document.getElementById('quoteDisplay');
-  quoteContainer.innerHTML = quotes.map(quote => `<p>${quote.text}</p><p><em>${quote.category}</em></p>`).join('');
-}
-
-// Event listener for the "Add Quote" button
-document.getElementById('addQuoteButton').addEventListener('click', addQuote);
+});
