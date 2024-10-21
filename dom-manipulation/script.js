@@ -26,6 +26,7 @@ async function syncQuotes() {
   const mergedQuotes = [...localQuotes, ...serverQuotes];
   localStorage.setItem('quotes', JSON.stringify(mergedQuotes));
   updateDOM(mergedQuotes);
+  notifyUser("Quotes synced with server!");
 }
 
 setInterval(syncQuotes, 60000); // Sync every 60 seconds
@@ -165,8 +166,26 @@ function loadSelectedCategory() {
 function notifyUser(message) {
   const notification = document.createElement('div');
   notification.textContent = message;
+  notification.style.position = 'fixed';
+  notification.style.bottom = '10px';
+  notification.style.right = '10px';
+  notification.style.backgroundColor = '#4caf50';
+  notification.style.color = 'white';
+  notification.style.padding = '10px';
+  notification.style.borderRadius = '5px';
   document.body.appendChild(notification);
   setTimeout(() => notification.remove(), 3000);
 }
 
-function
+document.getElementById('newQuote').addEventListener('click', showRandomQuote);
+document.getElementById('exportButton').addEventListener('click', exportToJsonFile);
+document.getElementById('importFile').addEventListener('change', importFromJsonFile);
+
+document.addEventListener('DOMContentLoaded', () => {
+  loadQuotes();
+  loadLastViewedQuote();
+  createAddQuoteForm();
+  populateCategories();
+  loadSelectedCategory();
+  updateDOM();
+});
