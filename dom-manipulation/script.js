@@ -7,11 +7,14 @@ const quotes = [
 function showRandomQuote() {
   const randomIndex = Math.floor(Math.random() * quotes.length);
   const quoteDisplay = document.getElementById('quoteDisplay');
-  quoteDisplay.textContent = quotes[randomIndex].text;
+  const randomQuote = quotes[randomIndex].text;
+  quoteDisplay.textContent = randomQuote;
+  saveLastViewedQuote(randomQuote);
 }
 
 function addQuote(newQuote) {
   quotes.push({ text: newQuote, category: "User Added" });
+  saveQuotes();
   updateDOM();
 }
 
@@ -50,7 +53,58 @@ function createAddQuoteForm() {
   });
 }
 
-document.getElementById('newQuote').addEventListener('click', showRandomQuote);
+function saveQuotes() {
+  localStorage.setItem('quotes', JSON.stringify(quotes));
+}
 
-// Call the function to create the form when the script loads
-createAddQuoteForm();
+function loadQuotes() {
+  const storedQuotes = localStorage.getItem('quotes');
+  if (storedQuotes) {
+      quotes.push(...JSON.parse(storedQuotes));
+  }
+}
+
+function saveLastViewedQuote(quote) {
+  sessionStorage.setItem('lastViewedQuote', quote);
+}
+
+function loadLastViewedQuote() {
+  const lastQuote = sessionStorage.getItem('lastViewedQuote');
+  if (lastQuote) {
+      document.getElementById('quoteDisplay').textContent = lastQuote;
+  }
+}
+
+function exportToJsonFile() {
+  const dataStr = JSON.stringify(quotes);
+  const dataBlob = new Blob([dataStr], { type: 'application/json' });
+  const url = URL.createObjectURL(dataBlob);
+  const downloadLink = document.createElement('a');
+  downloadLink.href = url;
+  downloadLink.download = 'quotes.json';
+  downloadLink.click();
+}
+
+function importFromJsonFile(event) {
+  const fileReader = new FileReader();
+  fileReader.onload = function(event) {
+      const importedQuotes = JSON.parse(event.target.result);
+      quotes.push(...importedQuotes);
+      saveQuotes();
+      updateDOM();
+      alert('Quotes imported successfully!');
+  };
+  fileReader.readAsText(event.target.files[0]);
+}
+
+document.getElementById('newQuote').addEventListener('click', showRandomQuote);
+document.getElementById('exportButton').addEventListener('click', exportToJsonFile);
+document.getElementById('importFile').addEventListener('change', importFromJsonFile);
+
+document.addEventListener('DOMContentLoaded', () => {
+  loadQuotes();
+  loadLastViewedQuote();
+  createAddQuoteForm();
+  updateDOM();
+});
+
