@@ -4,6 +4,32 @@ const quotes = [
   // Add more quotes as needed
 ];
 
+async function fetchQuotesFromServer() {
+  const response = await fetch('https://jsonplaceholder.typicode.com/posts');
+  const serverQuotes = await response.json();
+  return serverQuotes.map(post => ({ text: post.title, category: "Server" }));
+}
+
+async function postQuoteToServer(quote) {
+  await fetch('https://jsonplaceholder.typicode.com/posts', {
+      method: 'POST',
+      headers: {
+          'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ title: quote.text, body: quote.category })
+  });
+}
+
+async function syncQuotes() {
+  const serverQuotes = await fetchQuotesFromServer();
+  const localQuotes = JSON.parse(localStorage.getItem('quotes')) || [];
+  const mergedQuotes = [...localQuotes, ...serverQuotes];
+  localStorage.setItem('quotes', JSON.stringify(mergedQuotes));
+  updateDOM(mergedQuotes);
+}
+
+setInterval(syncQuotes, 60000); // Sync every 60 seconds
+
 function showRandomQuote() {
   const randomIndex = Math.floor(Math.random() * quotes.length);
   const quoteDisplay = document.getElementById('quoteDisplay');
@@ -13,10 +39,12 @@ function showRandomQuote() {
 }
 
 function addQuote(newQuote, category = "User Added") {
-  quotes.push({ text: newQuote, category });
+  const quote = { text: newQuote, category };
+  quotes.push(quote);
   saveQuotes();
   updateDOM();
   populateCategories();
+  postQuoteToServer(quote);
 }
 
 function updateDOM(filteredQuotes = quotes) {
@@ -134,15 +162,11 @@ function loadSelectedCategory() {
   }
 }
 
-document.getElementById('newQuote').addEventListener('click', showRandomQuote);
-document.getElementById('exportButton').addEventListener('click', exportToJsonFile);
-document.getElementById('importFile').addEventListener('change', importFromJsonFile);
+function notifyUser(message) {
+  const notification = document.createElement('div');
+  notification.textContent = message;
+  document.body.appendChild(notification);
+  setTimeout(() => notification.remove(), 3000);
+}
 
-document.addEventListener('DOMContentLoaded', () => {
-  loadQuotes();
-  loadLastViewedQuote();
-  createAddQuoteForm();
-  populateCategories();
-  loadSelectedCategory();
-  updateDOM();
-});
+function
